@@ -1,0 +1,1 @@
+# bazar-catalog-service
