@@ -44,19 +44,7 @@ docker run -p 5001:5001 bazar-catalog-service:latest
 
 ### Usage
 
-Once the container is running, you can test the gRPC methods using `grpcurl` or a gRPC client.
-
-#### Example `grpcurl` Commands
-
-- **List available services**:
-  ```bash
-  grpcurl -plaintext localhost:5001 list
-  ```
-
-- **List methods in CatalogService**:
-  ```bash
-  grpcurl -plaintext localhost:5001 list bazar.CatalogService
-  ```
+Once the container is running, you can access the following endpoints:
 
 - **Call `QueryByTopic`** (replace `"distributed systems"` with your topic):
   ```bash

@@ -1,0 +1,28 @@
+### Get all books
+GET http://localhost:5001/books
+Accept: application/json
+
+###
+
+### Query by subject
+GET http://localhost:5001/search/distributed%20systems
+Accept: application/json
+
+###
+
+### Query by item number
+GET http://localhost:5001/info/1
+Accept: application/json
+
+###
+
+### Update item stock
+PUT http://localhost:5001/items/1
+Content-Type: application/json
+
+{
+  "stock": 10,
+  "price": 45
+}
+
+###
