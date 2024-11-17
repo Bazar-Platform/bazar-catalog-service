@@ -1,3 +1,5 @@
+from dis import CACHE
+
 from flask import Flask, jsonify, request
 import os
 import requests
@@ -7,6 +9,7 @@ app = Flask(__name__)
 # Environment variables to identify role and peer
 ROLE = os.getenv('ROLE', 'primary')  # 'primary' or 'backup'
 PEER_URL = os.getenv('PEER_URL')  # URL of the other node (primary or backup)
+CACHE_INVALIDATE_URL = os.getenv('CACHE_INVALIDATE_URL')  # URL of the cache invalidation endpoint
 
 # In-memory data store for books
 books = [
@@ -76,6 +79,9 @@ def update_item(Book_ID):
     if new_stock is not None:
         book['stock'] = new_stock
 
+    # Invalidate the cache
+    notify_cache_invalidation(f"info:{Book_ID}")
+
     # Notify the backup
     if PEER_URL:
         try:
@@ -84,6 +90,17 @@ def update_item(Book_ID):
             print(f"Warning: Failed to notify backup - {e}")
 
     return jsonify({'message': 'Item updated successfully'}), 200
+
+
+# Notify gateway to invalidate cache
+def notify_cache_invalidation(key):
+    if not CACHE_INVALIDATE_URL:
+        return
+    try:
+        response = requests.post(CACHE_INVALIDATE_URL, json={"key": key})
+        print(f"Cache invalidation response: {response.status_code}")
+    except Exception as e:
+        print(f"Failed to notify cache invalidation: {e}")
 
 
 # Endpoint for the primary to send updates to the backup
