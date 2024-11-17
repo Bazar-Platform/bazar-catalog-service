@@ -1,6 +1,12 @@
 from flask import Flask, jsonify, request
+import os
+import requests
 
 app = Flask(__name__)
+
+# Environment variables to identify role and peer
+ROLE = os.getenv('ROLE', 'primary')  # 'primary' or 'backup'
+PEER_URL = os.getenv('PEER_URL')  # URL of the other node (primary or backup)
 
 # In-memory data store for books
 books = [
@@ -53,13 +59,54 @@ def update_item(Book_ID):
     if not book:
         return jsonify({'error': 'Item not found'}), 404
 
-    # Update item details
+    # If the node is the backup, forward the request to the primary
+    if ROLE == 'backup':
+        if not PEER_URL:
+            return jsonify({'error': 'Primary URL not configured'}), 500
+
+        try:
+            response = requests.put(f"{PEER_URL}/items/{Book_ID}", json=data)
+            return response.json(), response.status_code
+        except Exception as e:
+            return jsonify({'error': 'Failed to communicate with primary', 'details': str(e)}), 500
+
+    # If the node is the primary, update the local database and notify the backup
     if new_price is not None:
         book['price'] = new_price
     if new_stock is not None:
         book['stock'] = new_stock
 
+    # Notify the backup
+    if PEER_URL:
+        try:
+            requests.put(f"{PEER_URL}/replica-update/{Book_ID}", json=data)
+        except Exception as e:
+            print(f"Warning: Failed to notify backup - {e}")
+
     return jsonify({'message': 'Item updated successfully'}), 200
+
+
+# Endpoint for the primary to send updates to the backup
+@app.route('/replica-update/<int:Book_ID>', methods=['PUT'])
+def replica_update(Book_ID):
+    if ROLE != 'backup':
+        return jsonify({'error': 'Only the backup can accept replica updates'}), 403
+
+    data = request.json
+    new_price = data.get('price')
+    new_stock = data.get('stock')
+
+    book = find_book_by_id(Book_ID)
+    if not book:
+        return jsonify({'error': 'Item not found'}), 404
+
+    # Update the database
+    if new_price is not None:
+        book['price'] = new_price
+    if new_stock is not None:
+        book['stock'] = new_stock
+
+    return jsonify({'message': 'Replica updated successfully'}), 200
 
 
 # Run the Flask app
