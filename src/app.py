@@ -4,10 +4,9 @@ import requests
 
 app = Flask(__name__)
 
-# Environment variables to identify role and peer
 ROLE = os.getenv('ROLE', 'primary')  # 'primary' or 'backup'
 PEER_URL = os.getenv('PEER_URL')  # URL of the other node (primary or backup)
-CACHE_INVALIDATE_URL = os.getenv('CACHE_INVALIDATE_URL')  # URL of the cache invalidation endpoint
+CACHE_INVALIDATE_URL = os.getenv('CACHE_INVALIDATE_URL')
 
 # In-memory data store for books
 books = [
