@@ -1,0 +1,22 @@
+services:
+  catalog-primary:
+    build:
+      context: .
+    image: bazar-catalog-service:latest
+    container_name: bazar-catalog-primary
+    ports:
+      - "5001:5001"
+    environment:
+      - ROLE=primary
+      - PEER_URL=http://bazar-catalog-backup:5001
+
+  catalog-backup:
+    build:
+      context: .
+    image: bazar-catalog-service:latest
+    container_name: bazar-catalog-backup
+    ports:
+      - "5010:5001"
+    environment:
+      - ROLE=backup
+      - PEER_URL=http://bazar-catalog-primary:5001
