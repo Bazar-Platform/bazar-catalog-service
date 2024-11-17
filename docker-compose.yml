@@ -1,0 +1,10 @@
+services:
+  catalog-primary:
+    build:
+      context: .
+    image: bazar-catalog-service:latest
+    container_name: bazar-catalog-primary
+    ports:
+      - "5001:5001"
+    environment:
+      - ROLE=primary

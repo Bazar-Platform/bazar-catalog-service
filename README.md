@@ -2,18 +2,10 @@
 
 This is a Flask-based microservice that provides endpoints for querying and updating book information.
 
-## Build and Run the Docker Container
-
-### Step 1: Build the Docker Image
+## Build and Run the Docker Compose
 
 ```bash
-docker build -t bazar-catalog-service:latest .
-```
-
-### Step 2: Run the Docker Container
-
-```bash
-docker run -p 5001:5001 bazar-catalog-service:latest
+docker-compose up --build
 ```
 
 ### Usage
